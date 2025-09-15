@@ -15,7 +15,8 @@ import java.io.IOException;
 
 public class PaymentTest
 {
-    private final int maxIncomeReq = 85813;
+    private final int fullTimeIncomeReq = 85813;
+    private final int partTimeIncomeReq = 128722;
     private final int partTimeStudyRate = 50;
     private final int fullTimeStudyRate = 100;
     private final int fullTimePayoutAmount = 9904;
@@ -93,7 +94,7 @@ public class PaymentTest
     @Test
     public void ageRequirement_Under20_NotEligible() {
         // [ID: 101] Must be at least 20
-        String personId = "20100101-1234"; // 15 years old
+        String personId = "20060101-1234"; // 19 years old
         int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);
         assertEquals("Student younger than 20 should not receive loan or subsidy", 0, result);
     }
