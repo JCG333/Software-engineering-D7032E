@@ -84,13 +84,12 @@ public class PaymentTest
 
         int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq - 1, fullTimeStudyRate, completionRatio);
 
-        // Assert
         assertEquals("Full-time student should receive 100% subsidy",fullTimePayoutAmount, result);
     }
 
     //401
     @Test
-    public void test_ID204_CompletionBelow50_NoLoanOrSubsidy()
+    public void CompletionBelow50_NoLoanOrSubsidy()
      {
         int completionRatio = 40;            // less than half-time
 
@@ -109,3 +108,4 @@ public class PaymentTest
 
 >>>>>>> Stashed changes
 }
+
