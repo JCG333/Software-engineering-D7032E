@@ -89,7 +89,133 @@ import java.io.IOException;
 <span class="fc" id="L89">        DayOfWeek dow = paymentDate.getDayOfWeek();</span>
 <span class="pc bpc" id="L90" title="2 of 4 branches missed.">        assertTrue(dow != DayOfWeek.SATURDAY &amp;&amp; dow != DayOfWeek.SUNDAY);</span>
 <span class="fc" id="L91">    }</span>
-    
+
+    @Test
+    public void ageRequirement_Under20_NotEligible() {
+        // [ID: 101] Must be at least 20
+<span class="fc" id="L96">        String personId = &quot;20100101-1234&quot;; // 15 years old</span>
+<span class="fc" id="L97">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L98">        assertEquals(&quot;Student younger than 20 should not receive loan or subsidy&quot;, 0, result);</span>
+<span class="fc" id="L99">    }</span>
+
+    @Test
+    public void ageRequirement_Exactly20_Eligible() {
+        // Boundary: Age at 20
+<span class="fc" id="L104">        String personId = &quot;20050101-1234&quot;; // 20 years old</span>
+<span class="fc" id="L105">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L106">        assertEquals(&quot;20-year-old should receive both loan and subsidy&quot;, fullTimePayoutAmount, result);</span>
+<span class="fc" id="L107">    }</span>
+
+    @Test
+    public void ageRequirement_At56_EntitledSubsidy() {
+        // [ID: 102] No subsidy when they turn 56
+<span class="fc" id="L112">        String personId = &quot;19690101-1234&quot;; // 56 years old 1969</span>
+<span class="fc" id="L113">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L114">        assertEquals(&quot;At 56, only subsidy should be paid&quot;, 2816, result);</span>
+<span class="fc" id="L115">    }</span>
+
+    @Test
+    public void ageRequirement_above56_NoSubsidy() {
+        // Boundary: Above 56 not entitled to subsidy
+<span class="fc" id="L120">        String personId = &quot;19680101-1234&quot;; // 57 years old</span>
+<span class="fc" id="L121">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L122">        assertEquals(&quot;Older than 56 should not receive support&quot;, 0, result);</span>
+<span class="fc" id="L123">    }</span>
+
+    @Test
+    public void ageRequirement_At47_NoLoanOnlySubsidy() {
+        // [ID: 103] No loan from the year they turn 47
+<span class="fc" id="L128">        String personId = &quot;19780101-1234&quot;; // 47 years old</span>
+<span class="fc" id="L129">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L130">        assertEquals(&quot;At 47, only subsidy should be paid&quot;, 2816, result);</span>
+<span class="fc" id="L131">    }</span>
+
+    @Test
+    public void ageRequirement_At47_LoanOnlySubsidy() {
+        // Boundary: Loan still available at 46
+<span class="fc" id="L136">        String personId = &quot;19790101-1234&quot;; // 46 years old</span>
+<span class="fc" id="L137">        int result = payment.getMonthlyAmount(personId, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L138">        assertEquals(&quot;At 46, both subsidy and loan should be paid&quot;, 9904, result);</span>
+<span class="fc" id="L139">    }</span>
+
+    @Test
+    public void incomeRequirement_FullTimeAboveLimit_NotEligible() {
+        // [ID: 301] Max 85 813 for full time
+<span class="fc" id="L144">        String personId = &quot;19900101-1234&quot;; // valid age</span>
+<span class="fc" id="L145">        int result = payment.getMonthlyAmount(personId, maxIncomeReq+1, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L146">        assertEquals(&quot;Full-time student with income &gt; 85 813 should get 0&quot;, 0, result);</span>
+<span class="fc" id="L147">    }</span>
+
+    @Test
+    public void incomeRequirement_FullTimeAtLimit_Eligible() {
+        // Exactly at 85 813
+<span class="fc" id="L152">        String personId = &quot;19900101-1234&quot;;</span>
+<span class="fc" id="L153">        int result = payment.getMonthlyAmount(personId, maxIncomeReq, fullTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L154">        assertEquals(&quot;Full-time student at income limit should still be eligible&quot;, fullTimePayoutAmount, result);</span>
+<span class="fc" id="L155">    }</span>
+
+    @Test
+    public void incomeRequirement_PartTimeAboveLimit_NotEligible() {
+        // [ID: 302] Max 128 722 for part time
+<span class="fc" id="L160">        String personId = &quot;19900101-1234&quot;;</span>
+<span class="fc" id="L161">        int result = payment.getMonthlyAmount(personId, 128723, partTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L162">        assertEquals(&quot;Part-time student with income &gt; 128 722 should get 0&quot;, 0, result);</span>
+<span class="fc" id="L163">    }</span>
+
+    @Test
+    public void incomeRequirement_PartTimeAtLimit_Eligible() {
+        // Exactly at 128 722
+<span class="fc" id="L168">        String personId = &quot;19900101-1234&quot;;</span>
+<span class="fc" id="L169">        int result = payment.getMonthlyAmount(personId, 128722, partTimeStudyRate, fullCourseCompletion);</span>
+<span class="fc" id="L170">        assertEquals(&quot;Part-time student at income limit should still be eligible&quot;, partTimePayoutAmount, result);</span>
+<span class="fc" id="L171">    }</span>
+
+    //201
+    @Test
+    public void lessThanHalfTimeStudyGetsNoSubsidy() throws Exception 
+    {
+<span class="fc" id="L177">        int studyRate = 25;               // less than half-time</span>
+<span class="fc" id="L178">        int completionRatio = 100;        // valid completion</span>
+
+<span class="fc" id="L180">        int result = payment.getMonthlyAmount(AgeWithinReq,  maxIncomeReq - 1, studyRate, completionRatio);</span>
+<span class="fc" id="L181">        assertEquals(&quot;Student studying less than half-time should not receive any subsidy&quot;,0, result);</span>
+<span class="fc" id="L182">    }</span>
+
+    //202
+    @Test
+    public void halfTimeStudyGetsHalfSubsidy() throws Exception 
+    {
+<span class="fc" id="L188">        int studyRate = 75;               // &lt;100 but &gt;=50 --&gt; half-time</span>
+<span class="fc" id="L189">        int completionRatio = 100;        // valid completion</span>
+
+<span class="fc" id="L191">        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq - 1, studyRate, completionRatio);</span>
+
+<span class="fc" id="L193">        int expected = partTimePayoutAmount;</span>
+<span class="fc" id="L194">        assertEquals(&quot;Student studying less than full time but at least half-time should receive 50% loan + 50% subsidy&quot;,expected, result);</span>
+<span class="fc" id="L195">    }</span>
+
+    //203
+    @Test
+    public void FullTimeStudentGetsFullSubsidy() 
+    {
+<span class="fc" id="L201">        int completionRatio = fullCourseCompletion; // full time</span>
+
+<span class="fc" id="L203">        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq - 1, fullTimeStudyRate, completionRatio);</span>
+
+<span class="fc" id="L205">        assertEquals(&quot;Full-time student should receive 100% subsidy&quot;,fullTimePayoutAmount, result);</span>
+<span class="fc" id="L206">    }</span>
+
+    //401
+    @Test
+    public void CompletionBelow50_NoLoanOrSubsidy()
+     {
+<span class="fc" id="L212">        int completionRatio = 40;            // less than half-time</span>
+
+<span class="fc" id="L214">        int result = payment.getMonthlyAmount(AgeWithinReq,  maxIncomeReq - 1, fullTimeStudyRate, completionRatio);</span>
+
+<span class="fc" id="L216">        assertEquals(&quot;Student with completion ratio &lt; 50% should not receive any loan or subsidy&quot;,0, result);</span>
+<span class="fc" id="L217">    }</span>
 
 }
+
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
