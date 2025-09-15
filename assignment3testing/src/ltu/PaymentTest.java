@@ -170,46 +170,6 @@ public class PaymentTest
         assertEquals("Part-time student at income limit should still be eligible", partTimePayoutAmount, result);
     }
 
-<<<<<<< Updated upstream
-=======
-    @Test
-    public void partTimeStudent()
-    {
-        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq-1, partTimeStudyRate, fullCourseCompletion);
-        assertEquals(partTimePayoutAmount, result);
-    }
-        
-    @Test
-    public void ageTooLow()
-    {
-        int result = payment.getMonthlyAmount(AgeBelowReq, maxIncomeReq-1, fullTimeStudyRate, fullCourseCompletion);
-        assertEquals(0, result);
-    }
-
-    @Test
-    public void incomeTooHigh()
-    {
-        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq+1, fullTimeStudyRate, fullCourseCompletion);
-        assertEquals(0, result);
-    }
-
-    @Test
-    public void lowCompletion()
-    {
-        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq-1, fullTimeStudyRate, noCourseCompletion);
-        assertEquals(0, result);
-    }
-
-    @Test
-    public void lastWeekdayOfTheMonth()
-    {
-        String paymentDateString = payment.getNextPaymentDay();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate paymentDate = LocalDate.parse(paymentDateString, format);
-        DayOfWeek dow = paymentDate.getDayOfWeek();
-        assertTrue(dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY);
-    }
-
     //201
     @Test
     public void lessThanHalfTimeStudyGetsNoSubsidy() throws Exception 
@@ -254,16 +214,7 @@ public class PaymentTest
         int result = payment.getMonthlyAmount(AgeWithinReq,  maxIncomeReq - 1, fullTimeStudyRate, completionRatio);
 
         assertEquals("Student with completion ratio < 50% should not receive any loan or subsidy",0, result);
-}
+    }
 
-
-
-
-
-
-
-    
-
->>>>>>> Stashed changes
 }
 
