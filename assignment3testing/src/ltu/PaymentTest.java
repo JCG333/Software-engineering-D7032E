@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import java.io.IOException;
+import java.util.Date;
 
 public class PaymentTest {
     private final int maxIncomeReq = 85813;
@@ -229,4 +230,37 @@ public class PaymentTest {
         assertEquals("Student with completion ratio < 50% should not receive any loan or subsidy", 0, result);
     }
 
+    @Test
+    public void entitledStudentReceivesFullLoan() {
+        // Arrange
+        int completionRatio = fullCourseCompletion; // Full course completion
+
+        // Act
+        int result = payment.getMonthlyAmount(AgeWithinReq, maxIncomeReq - 1, fullTimeStudyRate, completionRatio);
+
+        // Assert
+        assertEquals("A student entitled to a loan should receive the full loan amount", fullTimePayoutAmount, result);
+    }
+
+    private ICalendar fixedDateCalendar(int year, int month /* Calendar.JANUARY.. */, int day) {
+        return new ICalendar() {
+            @Override
+            public Date getDate() {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.MILLISECOND, 0);
+                c.set(year, month, day, 0, 0, 0);
+                return c.getTime();
+            }
+        };
+    }
+
+    @Test
+    public void testLeapYearFebruaryLastDay() throws Exception {
+        // Feb 2024 (leap): last day is 29th (Thursday) → expect 20240229
+        ICalendar cal = fixedDateCalendar(2024, Calendar.FEBRUARY, 1);
+        PaymentImpl payment = new PaymentImpl(cal);
+
+        String got = payment.getNextPaymentDay();
+        assertEquals("20240229", got);
+    }
 }
