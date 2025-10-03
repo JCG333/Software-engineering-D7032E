@@ -87,9 +87,9 @@ public class PaymentImpl implements IPayment
 
     private int getAge(String personId)
     {
-<span class="pc bpc" id="L90" title="1 of 4 branches missed.">        if (personId == null || personId.length() != 13)</span>
+<span class="pc bpc" id="L90" title="2 of 4 branches missed.">        if (personId == null || personId.length() != 13)</span>
         {
-<span class="fc" id="L92">            throw new IllegalArgumentException(&quot;Invalid personId: &quot; + personId);</span>
+<span class="nc" id="L92">            throw new IllegalArgumentException(&quot;Invalid personId: &quot; + personId);</span>
         }
 <span class="fc" id="L94">        int personYear = parseInt(personId.substring(0, 4));</span>
 <span class="fc" id="L95">        int paymentYear = parseInt(new SimpleDateFormat(&quot;yyyy&quot;).format(calendar.getDate()));</span>
